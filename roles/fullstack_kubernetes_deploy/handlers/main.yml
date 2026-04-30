@@ -1,3 +1,7 @@
-#SPDX-License-Identifier: MIT-0
----
 # handlers file for fullstack_kubernetes_deploy
+---
+# handlers file for jenkins
+- name: restart jenkins
+  service:
+    name: jenkins
+    state: restarted
