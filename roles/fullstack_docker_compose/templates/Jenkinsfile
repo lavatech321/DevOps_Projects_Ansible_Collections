@@ -8,7 +8,7 @@ pipeline {
 
                 // Replace IP after clone
                 sh '''
-               sed -i "s/REPLACE-IP/PUBLIC-IP/g" app/react-app/weather_app_frontend/src/service/WeatherService.js
+               sed -i "s/REPLACE-IP/{{ public_ip }}/g" app/react-app/weather_app_frontend/src/service/WeatherService.js
                 '''
             }
         }
