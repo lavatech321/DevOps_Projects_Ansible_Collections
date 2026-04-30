@@ -1,0 +1,25 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('Clone Repo') {
+	    steps {
+                git branch: 'main', url: 'https://github.com/lavatech321/Monitoring_Stack_App.git'
+
+                // Replace IP after clone
+                sh '''
+               sed -i "s/REPLACE-IP/PUBLIC-IP/g" app/react-app/weather_app_frontend/src/service/WeatherService.js
+                '''
+            }
+        }
+
+        stage('Run Docker Compose') {
+            steps {
+                dir('app') {
+                    sh 'docker compose up -d'
+                }
+            }
+        }
+    }
+}
+
