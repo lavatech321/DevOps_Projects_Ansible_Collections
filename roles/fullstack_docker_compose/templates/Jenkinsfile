@@ -4,7 +4,7 @@ pipeline {
     stages {
         stage('Clone Repo') {
 	    steps {
-                git branch: 'main', url: 'https://github.com/lavatech321/Monitoring_Stack_App.git'
+                git branch: 'main', url: 'https://github.com/lavatech321/Monitoring_Stack.git'
 
                 // Replace IP after clone
                 sh '''
