@@ -1,0 +1,50 @@
+
+pipeline {
+agent any
+
+environment {
+    PUBLIC_IP = "{{ public_ip }}"
+}
+
+stages {
+
+    stage('Clone Kubernetes Repo') {
+        steps {
+            git branch: 'main', url: 'https://github.com/lavatech321/Kubernetes-Application-Deployment.git'
+        }
+    }
+
+    stage('Update Deployment YAML') {
+        steps {
+            sh '''
+            sed -i "s/REPLACE-IP/${PUBLIC_IP}/g" Kubernetes-Application-Deployment/deployment/todo-app-deploy.yaml
+            '''
+        }
+    }
+
+    stage('Deploy to Minikube') {
+        steps {
+            sh '''
+            kubectl apply -f Kubernetes-Application-Deployment/deployment/todo-app-deploy.yaml
+            '''
+        }
+    }
+
+    stage('Wait for Deployment') {
+        steps {
+            sh 'sleep 60'
+        }
+    }
+
+    stage('Verify Deployment') {
+        steps {
+            sh '''
+            kubectl get pods
+            kubectl get svc
+            '''
+        }
+    }
+}
+
+}
+

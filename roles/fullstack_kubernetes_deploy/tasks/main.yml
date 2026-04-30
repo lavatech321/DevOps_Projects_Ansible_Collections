@@ -1,0 +1,22 @@
+---
+- name: Copy Jenkinsfile template
+  template:
+    src: Jenkinsfile
+    dest: /var/lib/jenkins
+
+- name: Ensure init.groovy.d directory exists
+  file:
+    path: "/var/lib/jenkins/init.groovy.d"
+    state: directory
+    owner: jenkins
+    group: jenkins
+    mode: '0755'
+
+- name: Copy pipeline.groovy to Jenkins
+  copy:
+    src: pipeline.groovy
+    dest: "/var/lib/jenkins/init.groovy.d/pipeline.groovy"
+    owner: jenkins
+    group: jenkins
+    mode: '0644'
+  notify: restart jenkins
