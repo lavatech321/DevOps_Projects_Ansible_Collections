@@ -1,0 +1,17 @@
+---
+# vars file for jenkins
+jenkins_home: /var/lib/jenkins
+
+plugin_manager_url: https://github.com/jenkinsci/plugin-installation-manager-tool/releases/download/2.13.0/jenkins-plugin-manager-2.13.0.jar
+plugin_manager_path: /tmp/plugin-manager.jar
+
+jenkins_deb_url: https://pkg.jenkins.io/debian-stable/binary/jenkins_2.555.1_all.deb
+
+plugins_list:
+  - git
+  - workflow-aggregator
+  - docker-workflow
+  - blueocean
+
+jenkins_admin_user: admin
+jenkins_admin_password: admin123

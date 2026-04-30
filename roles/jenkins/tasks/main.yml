@@ -1,0 +1,160 @@
+---
+- name: Update apt cache
+  apt:
+    update_cache: yes
+
+- name: Install base packages
+  apt:
+    name:
+      - ca-certificates
+      - curl
+      - gnupg
+      - lsb-release
+      - git
+      - openjdk-21-jdk
+      - wget
+    state: present
+
+- name: Create keyrings directory
+  file:
+    path: /etc/apt/keyrings
+    state: directory
+    mode: '0755'
+
+- name: Update apt
+  apt:
+    update_cache: yes
+
+- name: Download Jenkins
+  get_url:
+    url: "{{ jenkins_deb_url }}"
+    dest: /tmp/jenkins.deb
+
+- name: Install Jenkins
+  apt:
+    deb: /tmp/jenkins.deb
+
+- name: Enable Jenkins
+  service:
+    name: jenkins
+    enabled: yes
+
+- name: Stop Jenkins
+  service:
+    name: jenkins
+    state: stopped
+  ignore_errors: yes
+
+# ================= CONFIG =================
+
+- name: Disable setup wizard
+  lineinfile:
+    path: /etc/default/jenkins
+    regexp: '^JENKINS_JAVA_OPTIONS='
+    line: 'JENKINS_JAVA_OPTIONS="-Djenkins.install.runSetupWizard=false"'
+    create: yes
+
+- name: Clean old setup
+  file:
+    path: "{{ item }}"
+    state: absent
+  loop:
+    - "{{ jenkins_home }}/secrets/initialAdminPassword"
+    - "{{ jenkins_home }}/users"
+    - "{{ jenkins_home }}/plugins"
+
+- name: Create directories
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: jenkins
+    group: jenkins
+  loop:
+    - "{{ jenkins_home }}/users"
+    - "{{ jenkins_home }}/plugins"
+    - "{{ jenkins_home }}/init.groovy.d"
+
+- name: Create admin user
+  copy:
+    dest: "{{ jenkins_home }}/init.groovy.d/create-user.groovy"
+    content: |
+      import jenkins.model.*
+      import hudson.security.*
+
+      def instance = Jenkins.instanceOrNull
+      if (instance != null) {
+        def realm = new HudsonPrivateSecurityRealm(false)
+        realm.createAccount("{{ jenkins_admin_user }}","{{ jenkins_admin_password }}")
+        instance.setSecurityRealm(realm)
+
+        def strategy = new FullControlOnceLoggedInAuthorizationStrategy()
+        strategy.setAllowAnonymousRead(false)
+        instance.setAuthorizationStrategy(strategy)
+
+        instance.save()
+      }
+    owner: jenkins
+    group: jenkins
+
+- name: Mark setup complete
+  copy:
+    dest: "{{ item }}"
+    content: "2.0"
+    owner: jenkins
+    group: jenkins
+  loop:
+    - "{{ jenkins_home }}/jenkins.install.UpgradeWizard.state"
+    - "{{ jenkins_home }}/jenkins.install.InstallUtil.lastExecVersion"
+
+# ================= START =================
+
+- name: Start Jenkins
+  service:
+    name: jenkins
+    state: started
+
+- name: Wait for Jenkins
+  uri:
+    url: http://localhost:8080/login
+    status_code: 200
+  register: result
+  retries: 20
+  delay: 5
+  until: result.status == 200
+
+# ================= PLUGINS =================
+
+- name: Download plugin manager
+  get_url:
+    url: "{{ plugin_manager_url }}"
+    dest: "{{ plugin_manager_path }}"
+
+- name: Create plugin list
+  copy:
+    dest: /tmp/plugins.txt
+    content: |
+      {% for plugin in plugins_list %}
+      {{ plugin }}
+      {% endfor %}
+
+- name: Install plugins
+  shell: |
+    java -jar {{ plugin_manager_path }} \
+    --war /usr/share/java/jenkins.war \
+    --plugin-file /tmp/plugins.txt \
+    --plugin-download-directory {{ jenkins_home }}/plugins
+
+- name: Fix permissions
+  file:
+    path: "{{ jenkins_home }}"
+    recurse: yes
+    owner: jenkins
+    group: jenkins
+
+- name: Final message
+  debug:
+    msg: |
+      Jenkins Ready!
+      URL: http://<your-ip>:8080
+      Username: {{ jenkins_admin_user }}
+      Password: {{ jenkins_admin_password }}

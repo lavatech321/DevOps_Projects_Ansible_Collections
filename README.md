@@ -1,1 +1,3 @@
-# DevOps_Projects_Ansible_Collections
+# Ansible Collection - devops.projects
+
+Documentation for the collection.

@@ -1,0 +1,12 @@
+- name: Setup Jenkins with Docker
+  hosts: localhost
+  become: yes
+  roles:
+    # install and configure jenkins
+    - jenkins
+    # install docker and docker compose
+    - docker
+    # configure jenkins cicd pipeline for python data science app
+    - data_science_pipeline 
+    # configure fullstack app using docker compose
+    - fullstack_docker_compose 
