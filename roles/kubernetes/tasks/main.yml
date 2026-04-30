@@ -57,7 +57,6 @@
 
 - name: Start Minikube (non-root)
   become: yes
-  become_user: "{{ minikube_user }}"
   command: minikube start --driver={{ minikube_driver }}
   register: mk_start
   changed_when: "'Done!' in mk_start.stdout"
