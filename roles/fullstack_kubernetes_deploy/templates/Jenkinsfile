@@ -10,14 +10,14 @@ stages {
 
     stage('Clone Kubernetes Repo') {
         steps {
-            git branch: 'main', url: 'https://github.com/lavatech321/Kubernetes-Application-Deployment.git'
+            git branch: 'main', url: 'https://github.com/lavatech321/Kubernetes_CICD_Pipeline.git'
         }
     }
 
     stage('Update Deployment YAML') {
         steps {
             sh '''
-            sed -i "s/REPLACE-IP/${PUBLIC_IP}/g" Kubernetes-Application-Deployment/deployment/todo-app-deploy.yaml
+            sed -i "s/REPLACE-IP/${PUBLIC_IP}/g" Kubernetes_CICD_Pipeline/deployment/todo-app-deploy.yaml
             '''
         }
     }
@@ -25,7 +25,7 @@ stages {
     stage('Deploy to Minikube') {
         steps {
             sh '''
-            kubectl apply -f Kubernetes-Application-Deployment/deployment/todo-app-deploy.yaml
+            kubectl apply -f Kubernetes_CICD_Pipeline/deployment/todo-app-deploy.yaml
             '''
         }
     }
