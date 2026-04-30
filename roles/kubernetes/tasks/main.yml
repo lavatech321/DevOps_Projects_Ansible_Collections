@@ -1,5 +1,18 @@
 # tasks file for kubernetes
 ---
+# ================= BASE =================
+
+- name: Update apt
+  apt:
+    update_cache: yes
+
+- name: Install dependencies
+  apt:
+    name:
+      - curl
+      - wget
+      - apt-transport-https
+    state: present
 
 # ================= KUBECTL =================
 
@@ -8,11 +21,12 @@
     curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
   args:
     chdir: /tmp
+    creates: /tmp/kubectl
 
 - name: Install kubectl
   copy:
     src: /tmp/kubectl
-    dest: /usr/local/bin/kubectl
+    dest: "{{ kubectl_path }}"
     mode: '0755'
     remote_src: yes
 
@@ -22,18 +36,36 @@
   get_url:
     url: https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
     dest: /tmp/minikube
+    mode: '0755'
 
 - name: Install Minikube
   copy:
     src: /tmp/minikube
-    dest: /usr/local/bin/minikube
+    dest: "{{ minikube_path }}"
     mode: '0755'
     remote_src: yes
 
-# ================= START CLUSTER =================
+# ================= DOCKER ACCESS =================
 
-- name: Start Minikube
+- name: Add user to docker group
+  user:
+    name: "{{ minikube_user }}"
+    groups: docker
+    append: yes
+
+# ================= START MINIKUBE =================
+
+- name: Start Minikube (non-root)
+  become: yes
+  become_user: "{{ minikube_user }}"
   command: minikube start --driver={{ minikube_driver }}
-  register: minikube_output
-  changed_when: "'Done!' in minikube_output.stdout"
+  register: mk_start
+  changed_when: "'Done!' in mk_start.stdout"
+
+# ================= VERIFY =================
+
+- name: Get nodes
+  become: yes
+  become_user: "{{ minikube_user }}"
+  command: kubectl get nodes
 
