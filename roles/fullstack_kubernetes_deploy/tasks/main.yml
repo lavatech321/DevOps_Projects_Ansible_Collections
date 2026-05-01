@@ -20,3 +20,17 @@
     group: jenkins
     mode: '0644'
   notify: restart jenkins
+
+- name: Port forward frontend
+  shell: |
+    export KUBECONFIG=/home/ubuntu/.kube/config
+    nohup kubectl port-forward service/frontend 30000:3000 --address 0.0.0.0 > /tmp/frontend.log 2>&1 &
+  args:
+    executable: /bin/bash
+
+- name: Port forward backend
+  shell: |
+    export KUBECONFIG=/home/ubuntu/.kube/config
+    nohup kubectl port-forward service/backend 30081:7081 --address 0.0.0.0 > /tmp/backend.log 2>&1 &
+  args:
+    executable: /bin/bash
