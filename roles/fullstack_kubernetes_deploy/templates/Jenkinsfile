@@ -17,7 +17,7 @@ stages {
     stage('Update Deployment YAML') {
         steps {
             sh '''
-            sed -i "s/REPLACE-IP/${PUBLIC_IP}/g" Kubernetes_CICD_Pipeline/deployment/todo-app-deploy.yaml
+            sed -i "s/REPLACE-IP/${PUBLIC_IP}/g" kubernetes-minikube-app-deploy/deployment/todo-app-deploy.yaml
             '''
         }
     }
@@ -25,7 +25,7 @@ stages {
     stage('Deploy to Minikube') {
         steps {
             sh '''
-            kubectl apply -f Kubernetes_CICD_Pipeline/deployment/todo-app-deploy.yaml
+            kubectl apply -f kubernetes-minikube-app-deploy/deployment/todo-app-deploy.yaml
             '''
         }
     }
