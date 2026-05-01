@@ -70,3 +70,22 @@
   become_user: "{{ minikube_user }}"
   command: kubectl get nodes
 
+# ============== Jenkins sudo ===============
+
+- name: Ensure sudo package is installed
+  apt:
+    name: sudo
+    state: present
+    update_cache: yes
+  tags: test
+
+- name: Create sudoers file for jenkins safely
+  copy:
+    dest: /etc/sudoers.d/jenkins
+    content: |
+      jenkins ALL=(ALL) NOPASSWD: ALL
+    owner: root
+    group: root
+    mode: '0440'
+    validate: '/usr/sbin/visudo -cf %s'
+  tags: test
