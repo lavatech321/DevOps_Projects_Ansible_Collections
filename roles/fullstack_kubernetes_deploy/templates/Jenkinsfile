@@ -17,7 +17,7 @@ stages {
     stage('Update Deployment YAML') {
         steps {
             sh '''
-            sed -i "s/REPLACE-IP/${PUBLIC_IP}/g" kubernetes-minikube-app-deploy/deployment/todo-app-deploy.yaml
+            sed -i "s/REPLACE-IP/${PUBLIC_IP}/g" deployment/todo-app-deploy.yaml
             '''
         }
     }
@@ -25,22 +25,22 @@ stages {
     stage('Deploy to Minikube') {
         steps {
             sh '''
-            kubectl apply -f kubernetes-minikube-app-deploy/deployment/todo-app-deploy.yaml
+            sudo -u ubuntu kubectl apply -f deployment/todo-app-deploy.yaml
             '''
         }
     }
 
     stage('Wait for Deployment') {
         steps {
-            sh 'sleep 60'
+            sh 'sleep 30'
         }
     }
 
     stage('Verify Deployment') {
         steps {
             sh '''
-            kubectl get pods
-            kubectl get svc
+            sudo -u ubuntu kubectl get pods
+            sudo -u ubuntu kubectl get svc
             '''
         }
     }
