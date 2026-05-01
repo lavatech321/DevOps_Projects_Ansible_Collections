@@ -53,19 +53,15 @@
     groups: docker
     append: yes
 
-- name: Reset connection (apply docker group)
-  meta: reset_connection
-
 # ================= START MINIKUBE =================
 
-- name: Start Minikube (non-root)
+- name: Start Minikube (apply docker group)
   become: yes
   become_user: "{{ minikube_user }}"
-  environment:
-    CHANGE_MINIKUBE_NONE_USER: "true"
-  command: minikube start --driver={{ minikube_driver }}
-  register: mk_start
-  changed_when: "'Done!' in mk_start.stdout"
+  shell: |
+    newgrp docker <<EOF
+    minikube start --driver={{ minikube_driver }}
+    EOF
 
 # ================= VERIFY =================
 
