@@ -31,7 +31,7 @@ stages {
 
     stage('Wait for Deployment') {
         steps {
-            sh 'sleep 30'
+            sh 'sleep 120'
         }
     }
 
