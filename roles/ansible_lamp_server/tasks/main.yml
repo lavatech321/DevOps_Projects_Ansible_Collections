@@ -1,0 +1,34 @@
+---
+# tasks file for Apache server
+
+- name: Install packages
+  apt:
+    name:
+      - apache2
+      - ufw
+    state: present
+    update_cache: yes
+
+- name: Ensure apache2 is enabled and started
+  service:
+    name: "{{ item }}"
+    state: started
+    enabled: yes
+  loop:
+    - apache2
+    - ufw
+
+- name: Allow HTTP through firewall
+  ufw:
+    rule: allow
+    name: Apache
+  ignore_errors: yes
+
+- name: Deploy website template
+  template:
+    src: index.html.j2
+    dest: /var/www/html/index.php
+    owner: www-data
+    group: www-data
+    mode: '0644'
+  notify: Restart apache2
