@@ -21,10 +21,6 @@
     - apache2
     - ufw
     
-- name: Enable php
-  command: sudo a2enmod php
-  notify: Restart apache2
-
 - name: Allow HTTP through firewall
   ufw:
     rule: allow
