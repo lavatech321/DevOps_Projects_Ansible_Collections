@@ -7,7 +7,6 @@ environment {
 }
 
 stages {
-
     stage('Clone Kubernetes Repo') {
         steps {
             git branch: 'main', url: 'https://github.com/lavatech321/Kubernetes_CICD_Pipeline.git'
@@ -44,7 +43,24 @@ stages {
             '''
         }
     }
-}
 
+    stage('Port Forward Services') {
+    steps {
+            sh '''
+            # Frontend port forward
+            sudo -u ubuntu bash -c '
+            export KUBECONFIG=/home/ubuntu/.kube/config
+            nohup kubectl port-forward service/frontend 30000:3000 --address 0.0.0.0
+            '
+    
+            # Backend port forward
+            sudo -u ubuntu bash -c '
+            export KUBECONFIG=/home/ubuntu/.kube/config
+            nohup kubectl port-forward service/backend 30081:7081 --address 0.0.0.0
+            '
+            '''
+        }
+    }
+}
 }
 
