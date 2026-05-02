@@ -50,13 +50,13 @@ stages {
             # Frontend port forward
             sudo -u ubuntu bash -c '
             export KUBECONFIG=/home/ubuntu/.kube/config
-            nohup kubectl port-forward service/frontend 30000:3000 --address 0.0.0.0
+            nohup kubectl port-forward service/frontend 30000:3000 --address 0.0.0.0 > /tmp/frontend.log 2>&1 &
             '
     
             # Backend port forward
             sudo -u ubuntu bash -c '
             export KUBECONFIG=/home/ubuntu/.kube/config
-            nohup kubectl port-forward service/backend 30081:7081 --address 0.0.0.0
+            nohup kubectl port-forward service/backend 30081:7081 --address 0.0.0.0 > /tmp/backend.log 2>&1 &
             '
             '''
         }
