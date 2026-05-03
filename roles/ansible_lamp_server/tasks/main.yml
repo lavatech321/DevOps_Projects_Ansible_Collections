@@ -1,5 +1,7 @@
 ---
+##############################
 # tasks file for Apache server
+##############################
 - name: Install packages
   apt:
     name:
@@ -54,3 +56,36 @@
     group: www-data
     mode: '0644'
   notify: Restart apache2
+
+###################################
+# tasks file for MariaDB server
+###################################
+- name: Install MariaDB packages
+  apt:
+    name:
+      - mariadb-server
+      - python3-pymysql
+    state: present
+    update_cache: yes
+
+- name: Ensure MariaDB service is started and enabled
+  service:
+    name: mariadb
+    state: started
+    enabled: yes
+
+- name: Create database
+  community.mysql.mysql_db:
+    name: hotel_db
+    state: present
+    login_unix_socket: /run/mysqld/mysqld.sock
+
+- name: Create database user
+  community.mysql.mysql_user:
+    name: hotel_user
+    password: password123
+    priv: 'hotel_db.*:ALL'
+    host: localhost
+    state: present
+    login_unix_socket: /run/mysqld/mysqld.sock
+
