@@ -80,6 +80,20 @@
     state: present
     login_unix_socket: /run/mysqld/mysqld.sock
 
+- name: Create enquiries table
+  community.mysql.mysql_query:
+    login_db: hotel_db
+    login_unix_socket: /run/mysqld/mysqld.sock
+    query: |
+      CREATE TABLE IF NOT EXISTS enquiries (
+          id INT AUTO_INCREMENT PRIMARY KEY,
+          name VARCHAR(100),
+          email VARCHAR(100),
+          phone VARCHAR(20),
+          message TEXT,
+          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+
 - name: Create database user
   community.mysql.mysql_user:
     name: hotel_user
@@ -88,4 +102,3 @@
     host: localhost
     state: present
     login_unix_socket: /run/mysqld/mysqld.sock
-
