@@ -1,6 +1,5 @@
 ---
 # tasks file for Apache server
-
 - name: Install packages
   apt:
     name:
@@ -20,7 +19,27 @@
   loop:
     - apache2
     - ufw
+
+- name: Get PHP version
+  command: php -r "echo PHP_MAJOR_VERSION.'.'.PHP_MINOR_VERSION;"
+  register: php_version
+  changed_when: false
+
+- name: Enable PHP module
+  command: a2enmod php{{ php_version.stdout }}
+  notify: Restart apache2
     
+- name: Set DirectoryIndex
+  lineinfile:
+    path: /etc/apache2/mods-enabled/dir.conf
+    regexp: '^DirectoryIndex'
+    line: 'DirectoryIndex index.php index.html'
+
+- name: Remove default index.html
+  file:
+    path: /var/www/html/index.html
+    state: absent
+
 - name: Allow HTTP through firewall
   ufw:
     rule: allow
@@ -29,7 +48,7 @@
 
 - name: Deploy website template
   template:
-    src: index.html.j2
+    src: index.php.j2
     dest: /var/www/html/index.php
     owner: www-data
     group: www-data
