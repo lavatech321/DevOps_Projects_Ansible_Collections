@@ -1,0 +1,33 @@
+# tasks file for docker-streamlit-app
+#
+---
+- name: Create app directory
+  file:
+    path: "{{ app_dir }}"
+    state: directory
+
+- name: Copy Streamlit app
+  copy:
+    src: app.py
+    dest: "{{ app_dir }}/app.py"
+
+- name: Generate Dockerfile
+  template:
+    src: Dockerfile.j2
+    dest: "{{ app_dir }}/Dockerfile"
+
+- name: Build Docker image
+  community.docker.docker_image:
+    name: "{{ image_name }}"
+    build:
+      path: "{{ app_dir }}"
+    source: build
+
+- name: Run Streamlit container
+  community.docker.docker_container:
+    name: "{{ container_name }}"
+    image: "{{ image_name }}"
+    state: started
+    restart_policy: always
+    published_ports:
+      - "{{ host_port }}:{{ container_port }}"

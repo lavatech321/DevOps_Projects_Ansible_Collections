@@ -1,0 +1,9 @@
+#SPDX-License-Identifier: MIT-0
+---
+# vars file for docker-streamlit-app
+app_name: streamlit-demo
+container_name: streamlit-container
+image_name: streamlit-image
+host_port: 8501
+container_port: 8501
+app_dir: /opt/streamlit-app
